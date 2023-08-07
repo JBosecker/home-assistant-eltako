@@ -119,16 +119,16 @@ class EltakoEvent(EltakoEntity, EventEntity):
             second_action = decoded.rocker_second_action
             second_action_pressed = decoded.second_action == 1
             
-            if ((first_action == 0 && first_action_pressed) || (second_action == 0 && second_action_pressed)) && channel == "A1":
+            if ((first_action == 0 and first_action_pressed) or (second_action == 0 and second_action_pressed)) and channel == "A1":
                 self._trigger_event(EVENT_TYPE_BUTTON_PRESSED)
                 self.async_write_ha_state()
-            elif ((first_action == 1 && first_action_pressed) || (second_action == 1 && second_action_pressed)) && channel == "A0":
+            elif ((first_action == 1 and first_action_pressed) or (second_action == 1 and second_action_pressed)) and channel == "A0":
                 self._trigger_event(EVENT_TYPE_BUTTON_PRESSED)
                 self.async_write_ha_state()
-            elif ((first_action == 2 && first_action_pressed) || (second_action == 2 && second_action_pressed)) && channel == "B1":
+            elif ((first_action == 2 and first_action_pressed) or (second_action == 2 and second_action_pressed)) and channel == "B1":
                 self._trigger_event(EVENT_TYPE_BUTTON_PRESSED)
                 self.async_write_ha_state()
-            elif ((first_action == 3 && first_action_pressed) || (second_action == 3 && second_action_pressed)) && channel == "B0":
+            elif ((first_action == 3 and first_action_pressed) or (second_action == 3 and second_action_pressed)) and channel == "B0":
                 self._trigger_event(EVENT_TYPE_BUTTON_PRESSED)
                 self.async_write_ha_state()
             else:
