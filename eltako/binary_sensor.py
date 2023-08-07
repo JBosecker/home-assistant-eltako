@@ -89,6 +89,12 @@ class EltakoBinarySensor(EltakoEntity, BinarySensorEntity):
         )
 
     def value_changed(self, msg):
+        try:
+            decoded = self._dev_eep.decode_message(msg)
+        except Exception as e:
+            LOGGER.warning("Could not decode message: %s", str(e))
+            return
+            
         if self._dev_eep in [F6_10_00]:
             action = (decoded.movement & 0x70) >> 4
             
