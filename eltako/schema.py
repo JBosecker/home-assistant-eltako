@@ -4,14 +4,10 @@ from abc import ABC
 from typing import ClassVar
 import voluptuous as vol
 from eltakobus.eep import *
-from typing import Final
 
 
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASSES_SCHEMA as BINARY_SENSOR_DEVICE_CLASSES_SCHEMA,
-)
-from homeassistant.components.event import (
-    EventDeviceClass
 )
 from homeassistant.components.cover import (
     DEVICE_CLASSES_SCHEMA as COVER_DEVICE_CLASSES_SCHEMA,
@@ -91,15 +87,12 @@ class EventSchema(EltakoPlatformSchema):
 
     DEFAULT_NAME = "Event"
 
-    EVENT_DEVICE_CLASSES_SCHEMA: Final = vol.All(vol.Lower, vol.Coerce(EventDeviceClass))
-
     ENTITY_SCHEMA = vol.All(
         vol.Schema(
             {
                 vol.Required(CONF_ID): cv.matches_regex(CONF_ID_REGEX),
                 vol.Required(CONF_EEP): vol.In(CONF_EEP_SUPPORTED),
                 vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-                vol.Optional(CONF_DEVICE_CLASS): EVENT_DEVICE_CLASSES_SCHEMA,
             }
         ),
     )

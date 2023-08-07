@@ -7,10 +7,11 @@ from eltakobus.eep import *
 from homeassistant.components.event import (
     PLATFORM_SCHEMA,
     EventEntity,
-    EventEntityDescription
+    EventEntityDescription,
+    EventDeviceClass
 )
 from homeassistant import config_entries
-from homeassistant.const import CONF_DEVICE_CLASS, CONF_ID, CONF_NAME, Platform
+from homeassistant.const import CONF_ID, CONF_NAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
@@ -38,7 +39,6 @@ async def async_setup_entry(
         for entity_config in config[Platform.EVENT]:
             dev_id = AddressExpression.parse(entity_config.get(CONF_ID))
             dev_name = entity_config.get(CONF_NAME)
-            device_class = entity_config.get(CONF_DEVICE_CLASS)
             eep_string = entity_config.get(CONF_EEP)
 
             try:
@@ -48,10 +48,10 @@ async def async_setup_entry(
                 continue
             else:
                 if dev_eep in [F6_02_01, F6_02_02]:
-                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, device_class, "A1"))
-                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, device_class, "A0"))
-                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, device_class, "B1"))
-                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, device_class, "B0"))
+                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, EventDeviceClass.BUTTON, "A1"))
+                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, EventDeviceClass.BUTTON, "A0"))
+                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, EventDeviceClass.BUTTON, "B1"))
+                    entities.append(EltakoEvent(gateway, dev_id, dev_name, dev_eep, EventDeviceClass.BUTTON, "B0"))
 
 
     async_add_entities(entities)
