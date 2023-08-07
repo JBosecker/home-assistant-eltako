@@ -26,6 +26,7 @@ CONF_TIME_OPENS = "time_opens"
 PLATFORMS = [
     Platform.LIGHT,
     Platform.BINARY_SENSOR,
+    Platform.EVENT,
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.COVER,
