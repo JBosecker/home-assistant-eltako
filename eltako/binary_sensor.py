@@ -54,13 +54,12 @@ async def async_setup_entry(
     
 
 class EltakoBinarySensor(EltakoEntity, BinarySensorEntity):
-    """Representation of Eltako binary sensors such as wall switches.
+    """Representation of Eltako binary sensors such as motion sensors or window handles.
 
     Supported EEPs (EnOcean Equipment Profiles):
-    - F6-02-01 (Light and Blind Control - Application Style 2)
-    - F6-02-02 (Light and Blind Control - Application Style 1)
     - F6-10-00
     - D5-00-01
+    - A5-08-01
     """
 
     def __init__(self, gateway, dev_id, dev_name, dev_eep, device_class):
@@ -90,52 +89,7 @@ class EltakoBinarySensor(EltakoEntity, BinarySensorEntity):
         )
 
     def value_changed(self, msg):
-        """Fire an event with the data that have changed.
-
-        This method is called when there is an incoming message associated
-        with this platform.
-
-        Example message data:
-        - 2nd button pressed
-            ['0xf6', '0x10', '0x00', '0x2d', '0xcf', '0x45', '0x30']
-        - button released
-            ['0xf6', '0x00', '0x00', '0x2d', '0xcf', '0x45', '0x20']
-        """
-        
-        try:
-            decoded = self._dev_eep.decode_message(msg)
-        except Exception as e:
-            LOGGER.warning("Could not decode message: %s", str(e))
-            return
-        
-        if self._dev_eep in [F6_02_01, F6_02_02]:
-            if decoded.rocker_first_action == 0:
-                discriminator = "left"
-                action = 1
-            elif decoded.rocker_first_action == 1:
-                discriminator = "left"
-                action = 0
-            elif decoded.rocker_first_action == 2:
-                discriminator = "right"
-                action = 1
-            elif decoded.rocker_first_action == 3:
-                discriminator = "right"
-                action = 0
-            else:
-                return
-            
-            pressed = decoded.energy_bow
-            
-            self.hass.bus.fire(
-                EVENT_BUTTON_PRESSED,
-                {
-                    "id": self.dev_id.plain_address(),
-                    "discriminator": discriminator,
-                    "action": action,
-                    "pressed": pressed,
-                },
-            )
-        elif self._dev_eep in [F6_10_00]:
+        if self._dev_eep in [F6_10_00]:
             action = (decoded.movement & 0x70) >> 4
             
             if action == 0x07:

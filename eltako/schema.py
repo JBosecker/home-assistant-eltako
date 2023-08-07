@@ -9,6 +9,9 @@ from eltakobus.eep import *
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASSES_SCHEMA as BINARY_SENSOR_DEVICE_CLASSES_SCHEMA,
 )
+from homeassistant.components.event import (
+    EventDeviceClass
+)
 from homeassistant.components.cover import (
     DEVICE_CLASSES_SCHEMA as COVER_DEVICE_CLASSES_SCHEMA,
 )
@@ -60,7 +63,7 @@ class BinarySensorSchema(EltakoPlatformSchema):
     CONF_EEP = CONF_EEP
     CONF_ID_REGEX = CONF_ID_REGEX
     
-    CONF_EEP_SUPPORTED = [F6_02_01.eep_string, F6_02_02.eep_string, F6_10_00.eep_string, D5_00_01.eep_string, A5_08_01.eep_string]
+    CONF_EEP_SUPPORTED = [F6_10_00.eep_string, D5_00_01.eep_string, A5_08_01.eep_string]
 
     DEFAULT_NAME = "Binary sensor"
 
@@ -71,6 +74,31 @@ class BinarySensorSchema(EltakoPlatformSchema):
                 vol.Required(CONF_EEP): vol.In(CONF_EEP_SUPPORTED),
                 vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
                 vol.Optional(CONF_DEVICE_CLASS): BINARY_SENSOR_DEVICE_CLASSES_SCHEMA,
+            }
+        ),
+    )
+
+
+class EventSchema(EltakoPlatformSchema):
+    """Voluptuous schema for Eltako events."""
+    PLATFORM = Platform.EVENT
+
+    CONF_EEP = CONF_EEP
+    CONF_ID_REGEX = CONF_ID_REGEX
+    
+    CONF_EEP_SUPPORTED = [F6_02_01.eep_string, F6_02_02.eep_string]
+
+    DEFAULT_NAME = "Event"
+
+    EVENT_DEVICE_CLASSES_SCHEMA: Final = vol.All(vol.Lower, vol.Coerce(EventDeviceClass))
+
+    ENTITY_SCHEMA = vol.All(
+        vol.Schema(
+            {
+                vol.Required(CONF_ID): cv.matches_regex(CONF_ID_REGEX),
+                vol.Required(CONF_EEP): vol.In(CONF_EEP_SUPPORTED),
+                vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+                vol.Optional(CONF_DEVICE_CLASS): EVENT_DEVICE_CLASSES_SCHEMA,
             }
         ),
     )

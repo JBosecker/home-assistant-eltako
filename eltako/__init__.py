@@ -11,6 +11,7 @@ from .const import DATA_ELTAKO, DOMAIN, ELTAKO_GATEWAY, ELTAKO_CONFIG, LOGGER, P
 from .gateway import EltakoGateway
 from .schema import (
     BinarySensorSchema,
+    EventSchema,
     LightSchema,
     SwitchSchema,
     SensorSchema,
@@ -23,6 +24,7 @@ CONFIG_SCHEMA = vol.Schema(
             vol.Schema(
                 {
                     **BinarySensorSchema.platform_node(),
+                    **EventSchema.platform_node(),
                     **LightSchema.platform_node(),
                     **SwitchSchema.platform_node(),
                     **SensorSchema.platform_node(),
