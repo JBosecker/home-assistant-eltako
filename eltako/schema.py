@@ -4,6 +4,7 @@ from abc import ABC
 from typing import ClassVar
 import voluptuous as vol
 from eltakobus.eep import *
+from typing import Final
 
 
 from homeassistant.components.binary_sensor import (
