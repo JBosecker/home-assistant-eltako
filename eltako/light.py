@@ -80,7 +80,7 @@ class EltakoDimmableLight(EltakoEntity, RestoreEntity, LightEntity):
         """Call when entity about to be added to hass."""
         # If not None, we got an initial value.
         await super().async_added_to_hass()
-        if self._on_state is not None:
+        if hasattr(self, '_on_state') and self._on_state is not None:
             return
 
         if (state := await self.async_get_last_state()) is not None:
@@ -193,7 +193,7 @@ class EltakoSwitchableLight(EltakoEntity, RestoreEntity, LightEntity):
         """Call when entity about to be added to hass."""
         # If not None, we got an initial value.
         await super().async_added_to_hass()
-        if self._on_state is not None:
+        if hasattr(self, '_on_state') and self._on_state is not None:
             return
 
         if (state := await self.async_get_last_state()) is not None:
