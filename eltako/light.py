@@ -86,7 +86,7 @@ class EltakoDimmableLight(EltakoEntity, RestoreEntity, LightEntity):
         if (state := await self.async_get_last_state()) is not None:
             self._on_state = state.state == STATE_ON
             
-            if brightness := old_state.attributes.get(ATTR_BRIGHTNESS):
+            if brightness := state.attributes.get(ATTR_BRIGHTNESS):
                 self._attr_brightness = int(brightness)
             else:
                 self._attr_brightness = 50
