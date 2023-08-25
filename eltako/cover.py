@@ -8,11 +8,12 @@ from eltakobus.eep import *
 
 from homeassistant import config_entries
 from homeassistant.components.cover import PLATFORM_SCHEMA, CoverEntity, CoverEntityFeature, ATTR_POSITION
-from homeassistant.const import CONF_DEVICE_CLASS, CONF_ID, CONF_NAME, Platform
+from homeassistant.const import CONF_DEVICE_CLASS, CONF_ID, CONF_NAME, Platform, STATE_OPEN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .device import EltakoEntity
@@ -53,7 +54,7 @@ async def async_setup_entry(
         
     async_add_entities(entities)
 
-class EltakoCover(EltakoEntity, CoverEntity):
+class EltakoCover(EltakoEntity, RestoreEntity, CoverEntity):
     """Representation of an Eltako cover device."""
 
     def __init__(self, gateway, dev_id, dev_name, dev_eep, sender_id, sender_eep, device_class, time_closes, time_opens):
@@ -65,7 +66,6 @@ class EltakoCover(EltakoEntity, CoverEntity):
         self._attr_device_class = device_class
         self._attr_is_opening = False
         self._attr_is_closing = False
-        self._attr_is_closed = False
         self._attr_current_cover_position = 100
         self._attr_unique_id = f"{DOMAIN}_{dev_id.plain_address().hex()}_{device_class}"
         self.entity_id = f"cover.{self.unique_id}"
@@ -76,6 +76,18 @@ class EltakoCover(EltakoEntity, CoverEntity):
         
         if time_closes is not None and time_opens is not None:
             self._attr_supported_features |= CoverEntityFeature.SET_POSITION
+
+    async def async_added_to_hass(self) -> None:
+        """Call when entity about to be added to hass."""
+        # If not None, we got an initial value.
+        await super().async_added_to_hass()
+        if self._attr_is_closed is not None:
+            return
+
+        if (state := await self.async_get_last_state()) is not None:
+            self._attr_is_closed = state.state != STATE_OPEN
+        else:
+            self._attr_is_closed = False
 
     @property
     def device_info(self) -> DeviceInfo:

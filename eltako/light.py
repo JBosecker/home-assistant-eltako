@@ -14,10 +14,11 @@ from homeassistant.components.light import (
     LightEntity,
 )
 from homeassistant import config_entries
-from homeassistant.const import CONF_ID, CONF_NAME, Platform
+from homeassistant.const import CONF_ID, CONF_NAME, Platform, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .device import EltakoEntity
@@ -60,7 +61,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EltakoDimmableLight(EltakoEntity, LightEntity):
+class EltakoDimmableLight(EltakoEntity, RestoreEntity, LightEntity):
     """Representation of an Eltako light source."""
 
     _attr_color_mode = ColorMode.BRIGHTNESS
@@ -70,12 +71,27 @@ class EltakoDimmableLight(EltakoEntity, LightEntity):
         """Initialize the Eltako light source."""
         super().__init__(gateway, dev_id, dev_name)
         self._dev_eep = dev_eep
-        self._on_state = False
-        self._attr_brightness = 50
         self._sender_id = sender_id
         self._sender_eep = sender_eep
         self._attr_unique_id = f"{DOMAIN}_{dev_id.plain_address().hex()}"
         self.entity_id = f"light.{self.unique_id}"
+
+    async def async_added_to_hass(self) -> None:
+        """Call when entity about to be added to hass."""
+        # If not None, we got an initial value.
+        await super().async_added_to_hass()
+        if self._on_state is not None:
+            return
+
+        if (state := await self.async_get_last_state()) is not None:
+            self._on_state = state.state == STATE_ON
+            
+            if brightness := old_state.attributes.get(ATTR_BRIGHTNESS):
+                self._attr_brightness = int(brightness)
+            else:
+                self._attr_brightness = 50
+        else:
+            self._on_state = False
 
     @property
     def name(self):
@@ -158,7 +174,7 @@ class EltakoDimmableLight(EltakoEntity, LightEntity):
 
             self.schedule_update_ha_state()
 
-class EltakoSwitchableLight(EltakoEntity, LightEntity):
+class EltakoSwitchableLight(EltakoEntity, RestoreEntity, LightEntity):
     """Representation of an Eltako light source."""
 
     _attr_color_mode = ColorMode.ONOFF
@@ -168,11 +184,22 @@ class EltakoSwitchableLight(EltakoEntity, LightEntity):
         """Initialize the Eltako light source."""
         super().__init__(gateway, dev_id, dev_name)
         self._dev_eep = dev_eep
-        self._on_state = False
         self._sender_id = sender_id
         self._sender_eep = sender_eep
         self._attr_unique_id = f"{DOMAIN}_{dev_id.plain_address().hex()}"
         self.entity_id = f"light.{self.unique_id}"
+
+    async def async_added_to_hass(self) -> None:
+        """Call when entity about to be added to hass."""
+        # If not None, we got an initial value.
+        await super().async_added_to_hass()
+        if self._on_state is not None:
+            return
+
+        if (state := await self.async_get_last_state()) is not None:
+            self._on_state = state.state == STATE_ON
+        else:
+            self._on_state = False
 
     @property
     def name(self):

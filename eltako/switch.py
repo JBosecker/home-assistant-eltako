@@ -8,11 +8,12 @@ from eltakobus.eep import *
 
 from homeassistant import config_entries
 from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchEntity
-from homeassistant.const import CONF_ID, CONF_NAME, Platform
+from homeassistant.const import CONF_ID, CONF_NAME, Platform, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .device import EltakoEntity
@@ -52,7 +53,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EltakoSwitch(EltakoEntity, SwitchEntity):
+class EltakoSwitch(EltakoEntity, RestoreEntity, SwitchEntity):
     """Representation of an Eltako switch device."""
 
     def __init__(self, gateway, dev_id, dev_name, dev_eep, sender_id, sender_eep):
@@ -61,9 +62,20 @@ class EltakoSwitch(EltakoEntity, SwitchEntity):
         self._dev_eep = dev_eep
         self._sender_id = sender_id
         self._sender_eep = sender_eep
-        self._on_state = False
         self._attr_unique_id = f"{DOMAIN}_{dev_id.plain_address().hex()}"
         self.entity_id = f"switch.{self.unique_id}"
+
+    async def async_added_to_hass(self) -> None:
+        """Call when entity about to be added to hass."""
+        # If not None, we got an initial value.
+        await super().async_added_to_hass()
+        if self._on_state is not None:
+            return
+
+        if (state := await self.async_get_last_state()) is not None:
+            self._on_state = state.state == STATE_ON
+        else:
+            self._on_state = False
 
     @property
     def device_info(self) -> DeviceInfo:

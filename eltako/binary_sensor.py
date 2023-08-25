@@ -10,10 +10,11 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant import config_entries
-from homeassistant.const import CONF_DEVICE_CLASS, CONF_ID, CONF_NAME, Platform
+from homeassistant.const import CONF_DEVICE_CLASS, CONF_ID, CONF_NAME, Platform, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .device import EltakoEntity
@@ -53,7 +54,7 @@ async def async_setup_entry(
     async_add_entities(entities)
     
 
-class EltakoBinarySensor(EltakoEntity, BinarySensorEntity):
+class EltakoBinarySensor(EltakoEntity, RestoreEntity, BinarySensorEntity):
     """Representation of Eltako binary sensors such as motion sensors or window handles.
 
     Supported EEPs (EnOcean Equipment Profiles):
@@ -69,6 +70,16 @@ class EltakoBinarySensor(EltakoEntity, BinarySensorEntity):
         self._attr_device_class = device_class
         self._attr_unique_id = f"{DOMAIN}_{dev_id.plain_address().hex()}_{device_class}"
         self.entity_id = f"binary_sensor.{self.unique_id}"
+
+    async def async_added_to_hass(self) -> None:
+        """Call when entity about to be added to hass."""
+        # If not None, we got an initial value.
+        await super().async_added_to_hass()
+        if self._attr_is_on is not None:
+            return
+
+        if (state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = state.state == STATE_ON
 
     @property
     def name(self):
