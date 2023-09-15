@@ -1,0 +1,14 @@
+# Describes the format for available component services
+
+set_inhibit:
+  fields:
+    entity_id:
+      selector:
+        entity:
+          integration: eltako
+          domain: light
+    value:
+      required: true
+      example: 1
+      selector:
+        boolean:

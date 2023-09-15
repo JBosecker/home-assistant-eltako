@@ -72,13 +72,13 @@ class EltakoGateway:
         self._bus_task = asyncio.ensure_future(run(self._loop, conn_made=conn_made))
         def bus_done(bus_future, _task=self._main_task):
             self._bus_task = None
-            try:
-                result = bus_future.result()
-            except Exception as e:
+            if bus_future.exception() != None:
                 LOGGER.error("Bus task terminated with %s, removing main task", bus_future.exception())
                 LOGGER.exception(e)
+            elif bus_future.cancelled():
+                LOGGER.error("Bus task cancelled, removing main task")
             else:
-                LOGGER.error("Bus task terminated with %s (it should have raised an exception instead), removing main task", result)
+                LOGGER.error("Bus task terminated without exception (it should have raised an exception instead), removing main task")
             _task.cancel()
         self._bus_task.add_done_callback(bus_done)
         await conn_made

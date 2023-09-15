@@ -22,6 +22,9 @@ CONF_ID_REGEX = "^([0-9a-fA-F]{2})-([0-9a-fA-F]{2})-([0-9a-fA-F]{2})-([0-9a-fA-F
 CONF_METER_TARIFFS = "meter_tariffs"
 CONF_TIME_CLOSES = "time_closes"
 CONF_TIME_OPENS = "time_opens"
+CONF_VALUE = "value"
+
+SERVICE_SET_INHIBIT = "set_inhibit"
 
 PLATFORMS = [
     Platform.LIGHT,

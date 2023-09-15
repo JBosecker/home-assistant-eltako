@@ -16,13 +16,15 @@ from homeassistant.components.light import (
 from homeassistant import config_entries
 from homeassistant.const import CONF_ID, CONF_NAME, Platform, STATE_ON
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .device import EltakoEntity
-from .const import CONF_ID_REGEX, CONF_EEP, CONF_SENDER, DOMAIN, MANUFACTURER, DATA_ELTAKO, ELTAKO_CONFIG, ELTAKO_GATEWAY, LOGGER
+from .const import CONF_ID_REGEX, CONF_EEP, CONF_SENDER, DOMAIN, MANUFACTURER, DATA_ELTAKO, ELTAKO_CONFIG, ELTAKO_GATEWAY, LOGGER, SERVICE_SET_INHIBIT
+from .schema import SET_INHIBIT_SCHEMA
 
 
 async def async_setup_entry(
@@ -59,6 +61,13 @@ async def async_setup_entry(
                     entities.append(EltakoSwitchableLight(gateway, dev_id, dev_name, dev_eep, sender_id, sender_eep))
         
     async_add_entities(entities)
+    
+    platform = entity_platform.current_platform.get()
+    platform.async_register_entity_service(
+        SERVICE_SET_INHIBIT,
+        SET_INHIBIT_SCHEMA,
+        "set_inhibit",
+    )
 
 
 class EltakoDimmableLight(EltakoEntity, RestoreEntity, LightEntity):
@@ -174,6 +183,11 @@ class EltakoDimmableLight(EltakoEntity, RestoreEntity, LightEntity):
 
             self.schedule_update_ha_state()
 
+    def set_inhibit(self, value):
+        """Set Inhibit."""
+        LOGGER.warning("Inhibit is not supported on dimmable lights.")
+        return
+
 class EltakoSwitchableLight(EltakoEntity, RestoreEntity, LightEntity):
     """Representation of an Eltako light source."""
 
@@ -257,3 +271,16 @@ class EltakoSwitchableLight(EltakoEntity, RestoreEntity, LightEntity):
         if self._dev_eep in [M5_38_08]:
             self._on_state = decoded.state
             self.schedule_update_ha_state()
+            
+    def set_inhibit(self, value):
+        """Set Inhibit."""
+        address, _ = self._sender_id
+        
+        if self._sender_eep == A5_38_08:
+            lock = int(value == True)
+            on_state = int(self._on_state == True)
+            switching = CentralCommandSwitching(0, 1, lock, 0, on_state)
+            msg = A5_38_08(command=0x01, switching=switching).encode_message(address)
+            self.send_message(msg)
+
+
