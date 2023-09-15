@@ -3,6 +3,7 @@
 set_inhibit:
   fields:
     entity_id:
+      required: true
       selector:
         entity:
           integration: eltako
