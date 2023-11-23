@@ -112,7 +112,7 @@ class EltakoBinarySensor(EltakoEntity, RestoreEntity, BinarySensorEntity):
             if action == 0x07:
                 self._attr_is_on = False
             elif action in (0x04, 0x06):
-                self._attr_is_on = False
+                self._attr_is_on = True
             else:
                 return
 
