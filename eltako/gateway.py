@@ -74,7 +74,7 @@ class EltakoGateway:
             self._bus_task = None
             if bus_future.exception() != None:
                 LOGGER.error("Bus task terminated with %s, removing main task", bus_future.exception())
-                LOGGER.exception(e)
+                LOGGER.exception(bus_future.exception())
             elif bus_future.cancelled():
                 LOGGER.error("Bus task cancelled, removing main task")
             else:
