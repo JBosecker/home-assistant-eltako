@@ -32,16 +32,13 @@ from homeassistant.const import (
     CONF_ID,
     CONF_NAME,
     CONF_TYPE,
-    CONF_BINARY_LOGIC,
-    CONF_BINARY_LOGIC_NO,
-    CONF_BINARY_LOGIC_NC,
     ATTR_ENTITY_ID,
     Platform,
 )
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import ENTITY_CATEGORIES_SCHEMA
 
-from .const import CONF_ID_REGEX, CONF_EEP, CONF_SENDER, CONF_METER_TARIFFS, CONF_TIME_CLOSES, CONF_TIME_OPENS, CONF_VALUE, DOMAIN
+from .const import CONF_ID_REGEX, CONF_EEP, CONF_SENDER, CONF_METER_TARIFFS, CONF_TIME_CLOSES, CONF_TIME_OPENS, CONF_VALUE, CONF_BINARY_LOGIC, CONF_BINARY_LOGIC_NO, CONF_BINARY_LOGIC_NC, DOMAIN
 
 SET_INHIBIT_SCHEMA = vol.Schema(
     {
