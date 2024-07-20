@@ -18,7 +18,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .device import EltakoEntity
-from .const import CONF_ID_REGEX, CONF_EEP, DOMAIN, MANUFACTURER, DATA_ELTAKO, ELTAKO_CONFIG, ELTAKO_GATEWAY, LOGGER
+from .const import CONF_ID_REGEX, CONF_EEP, CONF_BINARY_LOGIC, CONF_BINARY_LOGIC_NO, CONF_BINARY_LOGIC_NC, DOMAIN, MANUFACTURER, DATA_ELTAKO, ELTAKO_CONFIG, ELTAKO_GATEWAY, LOGGER
 
 DEPENDENCIES = ["eltakobus"]
 EVENT_BUTTON_PRESSED = "button_pressed"
@@ -41,6 +41,7 @@ async def async_setup_entry(
             dev_name = entity_config.get(CONF_NAME)
             device_class = entity_config.get(CONF_DEVICE_CLASS)
             eep_string = entity_config.get(CONF_EEP)
+            binary_logic = entity_config.get(CONF_BINARY_LOGIC)
 
             try:
                 dev_eep = EEP.find(eep_string)
@@ -48,8 +49,7 @@ async def async_setup_entry(
                 LOGGER.warning("Could not find EEP %s for device with address %s", eep_string, dev_id.plain_address())
                 continue
             else:
-                entities.append(EltakoBinarySensor(gateway, dev_id, dev_name, dev_eep, device_class))
-
+                entities.append(EltakoBinarySensor(gateway, dev_id, dev_name, dev_eep, device_class, binary_logic))
 
     async_add_entities(entities)
     
@@ -63,13 +63,14 @@ class EltakoBinarySensor(EltakoEntity, RestoreEntity, BinarySensorEntity):
     - A5-08-01
     """
 
-    def __init__(self, gateway, dev_id, dev_name, dev_eep, device_class):
+    def __init__(self, gateway, dev_id, dev_name, dev_eep, device_class, binary_logic):
         """Initialize the Eltako binary sensor."""
         super().__init__(gateway, dev_id, dev_name)
         self._dev_eep = dev_eep
         self._attr_device_class = device_class
         self._attr_unique_id = f"{DOMAIN}_{dev_id.plain_address().hex()}_{device_class}"
         self.entity_id = f"binary_sensor.{self.unique_id}"
+        self._binary_logic = binary_logic
 
     async def async_added_to_hass(self) -> None:
         """Call when entity about to be added to hass."""
@@ -121,7 +122,10 @@ class EltakoBinarySensor(EltakoEntity, RestoreEntity, BinarySensorEntity):
             if decoded.learn_button == 0:
                 return
             
-            self._attr_is_on = decoded.contact == 0
+            if self._binary_logic == CONF_BINARY_LOGIC_NC:
+                self._attr_is_on = decoded.contact == 0
+            else:
+                self._attr_is_on = decoded.contact == 1
 
             self.schedule_update_ha_state()
         elif self._dev_eep in [A5_08_01]:

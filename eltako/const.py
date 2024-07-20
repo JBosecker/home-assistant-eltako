@@ -23,6 +23,9 @@ CONF_METER_TARIFFS = "meter_tariffs"
 CONF_TIME_CLOSES = "time_closes"
 CONF_TIME_OPENS = "time_opens"
 CONF_VALUE = "value"
+CONF_BINARY_LOGIC = "binary_logic"
+CONF_BINARY_LOGIC_NO = "no"
+CONF_BINARY_LOGIC_NC = "nc"
 
 SERVICE_SET_INHIBIT = "set_inhibit"
 

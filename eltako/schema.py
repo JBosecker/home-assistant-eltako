@@ -32,6 +32,9 @@ from homeassistant.const import (
     CONF_ID,
     CONF_NAME,
     CONF_TYPE,
+    CONF_BINARY_LOGIC,
+    CONF_BINARY_LOGIC_NO,
+    CONF_BINARY_LOGIC_NC,
     ATTR_ENTITY_ID,
     Platform,
 )
@@ -79,6 +82,7 @@ class BinarySensorSchema(EltakoPlatformSchema):
                 vol.Required(CONF_EEP): vol.In(CONF_EEP_SUPPORTED),
                 vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
                 vol.Optional(CONF_DEVICE_CLASS): BINARY_SENSOR_DEVICE_CLASSES_SCHEMA,
+                vol.Optional(CONF_BINARY_LOGIC, default=CONF_BINARY_LOGIC_NC): vol.In([CONF_BINARY_LOGIC_NO, CONF_BINARY_LOGIC_NC]),
             }
         ),
     )
