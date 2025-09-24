@@ -40,10 +40,9 @@ from homeassistant.helpers.entity import ENTITY_CATEGORIES_SCHEMA
 
 from .const import CONF_ID_REGEX, CONF_EEP, CONF_SENDER, CONF_METER_TARIFFS, CONF_TIME_CLOSES, CONF_TIME_OPENS, CONF_VALUE, CONF_BINARY_LOGIC, CONF_BINARY_LOGIC_NO, CONF_BINARY_LOGIC_NC, DOMAIN
 
-SET_INHIBIT_SCHEMA = vol.Schema(
+SET_INHIBIT_SCHEMA = cv.make_entity_service_schema(
     {
-        vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-        vol.Required(CONF_VALUE): cv.boolean,
+        vol.Required(CONF_VALUE): cv.boolean
     }
 )
 
