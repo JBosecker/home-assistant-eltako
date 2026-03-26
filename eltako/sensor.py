@@ -103,6 +103,7 @@ SENSOR_DESC_GAS_CURRENT = EltakoSensorEntityDescription(
     name="Flow rate",
     native_unit_of_measurement=UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR,
     icon="mdi:fire",
+    device_class=SensorDeviceClass.VOLUME_FLOW_RATE,
     state_class=SensorStateClass.MEASUREMENT,
 )
 
@@ -120,6 +121,7 @@ SENSOR_DESC_WATER_CURRENT = EltakoSensorEntityDescription(
     name="Flow rate",
     native_unit_of_measurement=UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR,
     icon="mdi:water",
+    device_class=SensorDeviceClass.VOLUME_FLOW_RATE,
     state_class=SensorStateClass.MEASUREMENT,
 )
 
